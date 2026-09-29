@@ -1,0 +1,7 @@
+{
+  "id": "skill-manager",
+  "description": "Manage agent skills across Claude Code, Codex, Pi, OpenCode, Gemini and more from one hub.",
+  "requirements": {
+    "paseo": ">=0.10.1"
+  }
+}

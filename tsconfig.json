@@ -1,28 +1,17 @@
 {
   "compilerOptions": {
-    "strict": true,
     "target": "ES2022",
     "module": "ESNext",
-    "moduleResolution": "bundler",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2023"],
+    "types": ["react", "node"],
     "jsx": "react-jsx",
-    "lib": [
-      "ES2022",
-      "DOM"
-    ],
-    "types": [
-      "node"
-    ],
-    "paths": {
-      "@/*": [
-        "./*"
-      ]
-    },
+    "strict": true,
+    "skipLibCheck": true,
     "noEmit": true,
-    "skipLibCheck": false
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true
   },
-  "include": [
-    "src",
-    "components",
-    "lib"
-  ]
+  "include": ["**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules"]
 }
