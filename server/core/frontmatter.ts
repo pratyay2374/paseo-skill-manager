@@ -17,7 +17,8 @@ export function parseFrontmatter(text: string): Frontmatter {
   const end = text.indexOf("\n---", 3);
   if (end === -1) return {};
   const result: Frontmatter = {};
-  for (const line of text.slice(3, end).split("\n")) {
+  // Drop each line's \r: Git on Windows checks files out with CRLF, and `.` never matches \r.
+  for (const line of text.slice(3, end).split("\n").map((raw) => raw.replace(/\r$/, ""))) {
     const match = /^([a-z-]+):\s*(.*)$/.exec(line);
     if (match === null) continue;
     const key = match[1] as keyof Frontmatter;

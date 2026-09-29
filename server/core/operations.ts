@@ -60,7 +60,9 @@ export function syncSkill(options: {
     try {
       fs.mkdirSync(agent.dir, { recursive: true });
       removePath(cell.path);
-      if (mode === "link") fs.symlinkSync(hubReal, cell.path, "dir");
+      // Windows needs admin rights or Developer Mode for directory symlinks; a
+      // junction needs neither, and lstat/readlink/realpath treat it the same.
+      if (mode === "link") fs.symlinkSync(hubReal, cell.path, process.platform === "win32" ? "junction" : "dir");
       else copyTree(hubReal, cell.path);
       return {
         agent: agentId,

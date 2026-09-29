@@ -1,5 +1,6 @@
 // Agent targets: which coding agents read skills from where, and how the
 // user extends or disables that list through plugin settings.
+import * as path from "node:path";
 import { expandHome, safeRealpath } from "./paths";
 
 export interface AgentTarget {
@@ -98,10 +99,11 @@ export function resolveAgents(options: {
     byId.set(agent.id, { ...agent, dir: expandHome(agent.dir) });
   }
   for (const agent of options.extraAgents ?? []) byId.set(agent.id, agent);
-  const hubReal = safeRealpath(options.hub) ?? options.hub;
-  return [...byId.values()].filter((agent) => {
-    if (disabled.has(agent.id)) return false;
-    const real = safeRealpath(agent.dir) ?? agent.dir;
-    return real !== hubReal;
-  });
+  // Resolve before comparing; Windows paths are case-insensitive.
+  const canonical = (dir: string) => {
+    const real = safeRealpath(dir) ?? path.resolve(dir);
+    return process.platform === "win32" ? real.toLowerCase() : real;
+  };
+  const hubReal = canonical(options.hub);
+  return [...byId.values()].filter((agent) => !disabled.has(agent.id) && canonical(agent.dir) !== hubReal);
 }

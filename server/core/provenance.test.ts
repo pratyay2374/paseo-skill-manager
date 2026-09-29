@@ -60,7 +60,7 @@ describe("hashSkillDir", () => {
 
 describe("lockfile", () => {
   it("lives beside the .agents directory", () => {
-    expect(lockfilePathForHub("/home/me/.agents/skills")).toBe("/home/me/skills-lock.json");
+    expect(lockfilePathForHub(path.join("/home/me", ".agents", "skills"))).toBe(path.join("/home/me", "skills-lock.json"));
   });
 
   it("round-trips and preserves unknown keys", () => {

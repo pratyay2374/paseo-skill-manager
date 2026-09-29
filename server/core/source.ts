@@ -7,7 +7,7 @@
 //   https://github.com/o/r[/tree/ref/path]
 //   https://gitlab.com/o/r[/-/tree/ref/path]
 //   git@host:o/r.git, https://host/o/r.git   generic git
-//   ./dir, /abs/dir, ~/dir        local directory
+//   ./dir, /abs/dir, ~/dir, C:\dir   local directory
 import { expandHome } from "./paths";
 import type { SourceType } from "./lockfile";
 
@@ -104,11 +104,16 @@ function parseHostedUrl(url: URL): SourceSpec | null {
   };
 }
 
+/** `./dir`, `../dir`, `/abs`, `~/dir`, and on Windows `C:\dir` or `.\dir`. */
+function isLocalPath(text: string): boolean {
+  return /^(\.{1,2}[\\/]|[\\/]|~([\\/]|$)|[A-Za-z]:[\\/])/.test(text);
+}
+
 export function parseSource(input: string): SourceSpec {
   const text = input.trim();
   if (text === "") throw new Error("source is required");
 
-  if (text.startsWith("./") || text.startsWith("../") || text.startsWith("/") || text.startsWith("~")) {
+  if (isLocalPath(text)) {
     // `./dir@skill` selects one skill inside a local directory.
     const at = text.lastIndexOf("@");
     const name = at > 0 ? text.slice(at + 1) : "";

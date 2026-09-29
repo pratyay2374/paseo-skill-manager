@@ -15,7 +15,7 @@ export const IGNORED_DIRS: ReadonlySet<string> = new Set([
 export function expandHome(input: string): string {
   const trimmed = input.trim();
   if (trimmed === "~") return os.homedir();
-  if (trimmed.startsWith("~/")) return path.join(os.homedir(), trimmed.slice(2));
+  if (trimmed.startsWith("~/") || trimmed.startsWith("~\\")) return path.join(os.homedir(), trimmed.slice(2));
   return path.resolve(trimmed);
 }
 

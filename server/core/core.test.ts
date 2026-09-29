@@ -8,12 +8,16 @@ import {
   doctor,
   lineDiff,
   parseExtraAgents,
+  parseFrontmatter,
   removeSkill,
   resolveAgents,
   scanStatus,
   syncSkill,
   type AgentTarget,
 } from "./index";
+
+/** Directory symlinks need admin rights on Windows; junctions do not. */
+const LINK_TYPE = process.platform === "win32" ? "junction" : "dir";
 
 let root: string;
 let hub: string;
@@ -53,6 +57,13 @@ afterEach(() => {
   fs.rmSync(root, { recursive: true, force: true });
 });
 
+describe("parseFrontmatter", () => {
+  it("reads CRLF files, as Git checks them out on Windows", () => {
+    const text = ["---", "name: vercel-react-best-practices", "description: React tips", "---", "# body", ""].join(String.fromCharCode(13, 10));
+    expect(parseFrontmatter(text)).toEqual({ name: "vercel-react-best-practices", description: "React tips" });
+  });
+});
+
 describe("scanStatus", () => {
   it("classifies every cell state", () => {
     writeSkill(hub, "linked");
@@ -60,12 +71,12 @@ describe("scanStatus", () => {
     writeSkill(hub, "modified");
     writeSkill(hub, "ext");
     writeSkill(hub, "broken");
-    fs.symlinkSync(path.join(hub, "linked"), path.join(agents[0].dir, "linked"));
+    fs.symlinkSync(path.join(hub, "linked"), path.join(agents[0].dir, "linked"), LINK_TYPE);
     writeSkill(agents[0].dir, "same");
     writeSkill(agents[0].dir, "modified", "# changed\n");
     const elsewhere = writeSkill(path.join(root, "elsewhere"), "ext");
-    fs.symlinkSync(elsewhere, path.join(agents[0].dir, "ext"));
-    fs.symlinkSync(path.join(root, "nope"), path.join(agents[0].dir, "broken"));
+    fs.symlinkSync(elsewhere, path.join(agents[0].dir, "ext"), LINK_TYPE);
+    fs.symlinkSync(path.join(root, "nope"), path.join(agents[0].dir, "broken"), LINK_TYPE);
     writeSkill(agents[0].dir, "only");
 
     const status = scan();
@@ -93,7 +104,7 @@ describe("scanStatus", () => {
   it("never emits undefined values (RPC outputs must be strict JSON)", () => {
     writeSkill(hub, "managed");
     writeSkill(agents[0].dir, "only");
-    fs.symlinkSync(path.join(hub, "managed"), path.join(agents[0].dir, "managed"));
+    fs.symlinkSync(path.join(hub, "managed"), path.join(agents[0].dir, "managed"), LINK_TYPE);
     const status = scan();
     const walk = (value: unknown, trail: string): void => {
       if (value === undefined) throw new Error(`undefined at ${trail}`);
@@ -246,7 +257,7 @@ describe("doctor", () => {
 describe("agent configuration", () => {
   it("parses extra agents and drops disabled ones and the hub", () => {
     const extra = parseExtraAgents('[{"id":"zed","label":"Zed","dir":"/tmp/zed/skills"}]');
-    expect(extra).toEqual([{ id: "zed", label: "Zed", dir: "/tmp/zed/skills" }]);
+    expect(extra).toEqual([{ id: "zed", label: "Zed", dir: path.resolve("/tmp/zed/skills") }]);
     const resolved = resolveAgents({
       hub: "/tmp/zed/skills",
       extraAgents: extra,
