@@ -4,6 +4,7 @@ import type { PluginHostProps } from "@getpaseo/plugin/client";
 import { Icon, TextInput } from "@getpaseo/plugin/client/react-native";
 import { createContext, useContext, useState, type ReactNode } from "react";
 import { Image, Platform, Pressable, Text, View, type StyleProp, type TextStyle, type ViewStyle } from "react-native";
+import { AGENT_LOGOS } from "../lib/agent-logos";
 import { CELL_META, alpha, isDrifted, toneColor, type Tone } from "../lib/meta";
 import type { Agent, CellState, Skill } from "../lib/types";
 
@@ -267,31 +268,31 @@ export function Panel({ children, style }: { children: ReactNode; style?: StyleP
 
 // ---------------------------------------------------------------- agents ----
 
-/** Short marks for the default agents; Paseo exposes no provider logos to plugins. */
-const AGENT_MARKS: Record<string, string> = {
-  claude: "CC",
-  codex: "Cx",
-  pi: "Pi",
-  opencode: "OC",
-  gemini: "Gm",
-  cursor: "Cu",
-  copilot: "Cp",
-};
-
-export function agentMark(agent: Pick<Agent, "id" | "label">): string {
-  return AGENT_MARKS[agent.id] ?? agent.label.slice(0, 2);
-}
-
-/** The agent's two-letter mark in a tile. */
-export function AgentLogo({ agent, size = 16 }: { agent: Agent; size?: number }) {
+/**
+ * The agent's logo, tinted to the theme; agents added in settings have no
+ * known logo and get the first two letters of their label in a tile.
+ */
+export function AgentLogo({ agent, size = 16, color }: { agent: Agent; size?: number; color?: string }) {
   const { c } = useSkin();
+  const tint = color ?? c.foregroundMuted;
+  const logo = AGENT_LOGOS[agent.id];
+  if (logo !== undefined) {
+    return (
+      <Image
+        source={{ uri: logo }}
+        accessibilityElementsHidden
+        importantForAccessibility="no"
+        style={{ width: size, height: size, tintColor: tint }}
+      />
+    );
+  }
   return (
     <View
       accessibilityElementsHidden
       importantForAccessibility="no"
       style={{ width: size + 4, height: size, borderRadius: 3, backgroundColor: c.surface2, alignItems: "center", justifyContent: "center" }}
     >
-      <Text style={{ color: c.foregroundMuted, fontSize: Math.max(8, size * 0.55), fontWeight: "600" }}>{agentMark(agent)}</Text>
+      <Text style={{ color: tint, fontSize: Math.max(8, size * 0.55), fontWeight: "600" }}>{agent.label.slice(0, 2)}</Text>
     </View>
   );
 }

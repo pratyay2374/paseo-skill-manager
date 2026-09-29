@@ -121,7 +121,7 @@ function Headline({ summary, selected, onSelect }: { summary: Summary; selected:
                 opacity: agent.active ? 1 : 0.4,
               }}
             >
-              <AgentLogo agent={agent} />
+              <AgentLogo agent={agent} color={active ? c.foreground : undefined} />
               <Text style={{ fontSize: 13, color: active ? c.foreground : c.foregroundMuted }}>{agent.active ? has : "–"}</Text>
             </Pressable>
           );
