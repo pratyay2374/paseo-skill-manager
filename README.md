@@ -2,19 +2,16 @@
   <img src="docs/logo.svg" width="112" alt="Skill Manager logo" />
 </p>
 
-<h1 align="center">Skill Manager</h1>
+<h1 align="center">Skill Manager for Paseo</h1>
 
-<p align="center"><strong>All your agent skills, one place, inside BB.</strong></p>
+<p align="center"><strong>All your agent skills, one place, inside Paseo.</strong></p>
 
 <p align="center">
-  <a href="https://github.com/sankalpaacharya/bb-skill-manager/releases"><img src="https://img.shields.io/github/v/tag/sankalpaacharya/bb-skill-manager?label=version&color=4f8cff" alt="Version" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-lightgrey" alt="MIT" /></a>
   <a href="https://skills.sh"><img src="https://img.shields.io/badge/registry-skills.sh-2ea44f" alt="skills.sh" /></a>
 </p>
 
-<p align="center">
-  <img src="docs/skills-page.png" width="900" alt="Skill Manager dashboard" />
-</p>
+A [Paseo](https://paseo.sh) port of [bb-skill-manager](https://github.com/sankalpaacharya/bb-skill-manager).
 
 Claude Code, Codex, Pi, OpenCode, Gemini, Cursor, Copilot. Each one keeps its own skills folder, so you end up with the same skill copied everywhere and slowly going out of sync.
 
@@ -22,11 +19,13 @@ Skill Manager fixes that. One hub, every agent linked to it, updates in one clic
 
 ## Install
 
+Turn on **Settings → Plugins → Enable plugins**, then:
+
 ```sh
-bb plugin install git:https://github.com/sankalpaacharya/bb-skill-manager.git
+paseo plugin install github:pratyay2374/paseo-skill-manager
 ```
 
-Then open **Skills** in the sidebar.
+Then open **Skills** in the sidebar. Requires Paseo 0.10.1 or newer.
 
 ## What you get
 
@@ -35,39 +34,42 @@ Then open **Skills** in the sidebar.
 - Search skills.sh and install into the agents you pick
 - Knows where each skill came from, tells you when there's an update
 - Tags, grouping by source, read any skill in place
-- Your agents can run all of it with `bb skill-manager`
+- Works on desktop and mobile Paseo clients, in every theme
 
-## CLI
-
-```sh
-bb skill-manager status
-bb skill-manager search react
-bb skill-manager install mattpocock/skills@code-review --all-agents
-bb skill-manager check
-bb skill-manager update
-bb skill-manager sync impeccable --to codex,pi
-bb skill-manager doctor
-```
-
-Run `bb skill-manager` for the full list. Nothing destructive happens without `--force`.
+Tap a skill to see its details: read it, tag it, check for updates, and link, copy, diff, adopt or remove it per agent.
 
 ## Settings
 
-`bb plugin config skill-manager`
+**Settings → Plugins → skill-manager → Skills**
 
-| Key | Default |
+| Setting | Default |
 | --- | --- |
-| `hubDir` | `~/.agents/skills` |
-| `defaultMode` | `link` |
-| `disabledAgents` | |
-| `extraAgents` | `[]` |
+| Hub folder | `~/.agents/skills` |
+| Install as | Link |
+| Hidden agents | |
+| More agents | `[]` |
+
+## Differences from the BB plugin
+
+- **No `bb skill-manager` CLI.** Paseo plugins cannot add CLI commands.
+- **Find skills starts empty.** The public skills.sh API has no trending list and needs a query of two or more characters.
+- **No summaries or topics** in search results; the public API does not return them.
+- **Files show as plain text** in the reader; Paseo gives plugins no Markdown renderer.
+- **Agents show as two-letter marks** (CC, Cx, Pi…); Paseo does not expose provider logos to plugins.
+- **Registry figures are rate-limited.** Download counts come from skills.sh and star counts from GitHub's API, which allows 60 unauthenticated requests an hour. The plugin backs off when either says slow down. Set `GITHUB_TOKEN` in the daemon's environment for a higher GitHub limit.
+- **Windows works.** Links are directory junctions, which need no admin rights.
+
+Plugin state (tags, cached update checks and registry figures) lives in `$PASEO_HOME/plugin-data/skill-manager/state.json`.
 
 ## Dev
 
 ```sh
 npm install
 npm test
-bb plugin install .
+npm run typecheck
+paseo plugin install "$PWD"
+paseo plugin reload skill-manager   # after each change
+paseo plugin logs skill-manager
 ```
 
 MIT
