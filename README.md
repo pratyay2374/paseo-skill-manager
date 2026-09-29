@@ -55,7 +55,7 @@ Tap a skill to see its details: read it, tag it, check for updates, and link, co
 - **Find skills starts empty.** The public skills.sh API has no trending list and needs a query of two or more characters.
 - **No summaries or topics** in search results; the public API does not return them.
 - **Files show as plain text** in the reader; Paseo gives plugins no Markdown renderer.
-- **Agents show as two-letter marks** (CC, Cx, Pi…); Paseo does not expose provider logos to plugins.
+- **Agent logos are built in.** Paseo does not share its provider artwork with plugins, so the plugin carries its own copies of Paseo's logos (Apache-2.0), tinted to the theme. Agents you add in settings show the first two letters of their name.
 - **Registry figures are rate-limited.** Download counts come from skills.sh and star counts from GitHub's API, which allows 60 unauthenticated requests an hour. The plugin backs off when either says slow down. Set `GITHUB_TOKEN` in the daemon's environment for a higher GitHub limit.
 - **Windows works.** Links are directory junctions, which need no admin rights.
 
